@@ -1,13 +1,26 @@
 from gtts import gTTS
 import os
-from playsound import playsound
+import multiprocessing
+import pygame
+
+pygame.mixer.init()
+
+
+def is_busy():
+    if pygame.mixer.music.get_busy():
+        return True
+    else:
+        if os.path.exists('tempfile.mp3'):
+            pygame.mixer.music.unload()
+            os.remove('tempfile.mp3')
+        return False
 
 
 def speak(txt, lang='ko'):
     tts = gTTS(text=txt, lang=lang)
     tts.save('tempfile.mp3')
-    playsound('tempfile.mp3')
-    os.remove('tempfile.mp3')
+    pygame.mixer.music.load('tempfile.mp3')
+    pygame.mixer.music.play()
 
 
 if __name__ == "__main__":
