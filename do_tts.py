@@ -16,11 +16,26 @@ def is_busy():
         return False
 
 
+def stop():
+    pygame.mixer.music.stop()
+    if os.path.exists('tempfile.mp3'):
+        pygame.mixer.music.unload()
+        os.remove('tempfile.mp3')
+
+
 def speak(txt, lang='ko'):
     tts = gTTS(text=txt, lang=lang)
     tts.save('tempfile.mp3')
     pygame.mixer.music.load('tempfile.mp3')
     pygame.mixer.music.play()
+
+
+def set_volume(value):
+    pygame.mixer.music.set_volume(value)
+
+
+def get_volume():
+    return pygame.mixer.music.get_volume()
 
 
 if __name__ == "__main__":
