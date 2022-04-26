@@ -2,14 +2,11 @@
 import do_tts
 import re
 import copy
-import chardet
-import multiprocessing
 from tkinter import *
 from tkinter.ttk import *
 from tkinter.font import *
 import tkinter.messagebox as messagebox
 from tkinter import filedialog
-import time
 
 
 # -------------------------------------------------------------------------------------------------
@@ -59,8 +56,18 @@ class TextPlayer:
 
         self.vol_label = Label(self.slider_frame, text="Volume")
         self.vol_label.pack(side=LEFT, padx=10, pady=10)
-        self.vol_scale = Scale(self.slider_frame)
+        self.vol_scale = Scale(self.slider_frame, from_=0, to=100, command=self.set_volume)
+        self.vol_scale.set(70)
         self.vol_scale.pack(side=LEFT, padx=10, pady=10)
+
+        self.radio_frame = LabelFrame(self.window, text="Speech Speed")
+        self.radio_frame.pack()
+
+        self.slow = BooleanVar(value=False)
+        self.speed_radio_fast = Radiobutton(self.radio_frame, text="Fast", value=False, variable=self.slow)\
+            .pack(side=LEFT, padx=10, pady=10)
+        self.speed_radio_slow = Radiobutton(self.radio_frame, text="Slow", value=True, variable=self.slow)\
+            .pack(side=LEFT, padx=10, pady=10)
 
         self.menu = Menu()
         self.menu_File = Menu(self.menu, tearoff=False)
@@ -136,6 +143,7 @@ class TextPlayer:
     def list_box_selected(self, event):
         do_tts.stop()
         selected = self.play_listbox.curselection()
+        self.playing_index = selected[0] - 1
         for num in selected:
             if num != self.playing_index:
                 self.playing_index = selected[0] - 1
@@ -153,8 +161,7 @@ class TextPlayer:
             self.text.clear()
 
     def clear(self):
-        self.is_playing = False
-        pass
+        self.init_basic_value()
 
     def quit(self):
         self.is_playing = False
@@ -169,7 +176,7 @@ class TextPlayer:
                 if self.playing_index >= len(self.text) - 1:
                     self.stop()
                 if self.text[self.playing_index] != '':
-                    do_tts.speak(self.text[self.playing_index])
+                    do_tts.speak(self.text[self.playing_index], slow=self.slow.get())
                     self.play_listbox.selection_clear(0, END)
                     self.play_listbox.selection_set(self.playing_index, self.playing_index)
                     self.play_listbox.see(self.playing_index + 4)
@@ -179,10 +186,9 @@ class TextPlayer:
         selected = self.play_listbox.curselection()
         if self.playing_index == 0:
             return self.text[selected[0]]
-        pass
 
-    def set_text(self):
-        pass
+    def set_volume(self, event):
+        do_tts.set_volume(self.vol_scale.get()/100)
 
     def update(self):
         self.window.mainloop()

@@ -23,18 +23,18 @@ def stop():
         os.remove('tempfile.mp3')
 
 
-def speak(txt, lang='ko'):
-    tts = gTTS(text=txt, lang=lang)
+def speak(txt, lang='ko', slow=False):
+    tts = gTTS(text=txt, lang=lang, slow=slow)
     tts.save('tempfile.mp3')
     pygame.mixer.music.load('tempfile.mp3')
     pygame.mixer.music.play()
 
 
-def set_volume(value):
+def set_volume(value):  # 0.0부터 1.0까지
     pygame.mixer.music.set_volume(value)
 
 
-def get_volume():
+def get_volume():  # 0.0부터 1.0까지
     return pygame.mixer.music.get_volume()
 
 
