@@ -8,18 +8,19 @@ from tkinter.font import *
 import tkinter.messagebox as messagebox
 from tkinter import filedialog
 
-
 # -------------------------------------------------------------------------------------------------
 # class space
 
 
 class TextPlayer:
+
+    support_extension = ['txt']
+
     def __init__(self):
 
         self.list_size = 0
         self.is_playing = False
         self.playing_index = -1
-        self.support_extension = ['txt']
         self.text = None
 
         self.window = Tk()
@@ -50,6 +51,7 @@ class TextPlayer:
         self.play_button = Button(self.button_frame, text="▶", command=self.play).pack(side=LEFT, padx=10, pady=10)
         self.stop_button = Button(self.button_frame, text="■", command=self.stop).pack(side=LEFT, padx=10, pady=10)
         self.next_button = Button(self.button_frame, text=">>", command=self.next).pack(side=LEFT, padx=10, pady=10)
+        self.next_button = Button(self.button_frame, text="Clear", command=self.clear).pack(side=LEFT, padx=10, pady=10)
 
         self.slider_frame = Frame(self.window)
         self.slider_frame.pack()
@@ -142,26 +144,31 @@ class TextPlayer:
 
     def list_box_selected(self, event):
         do_tts.stop()
-        selected = self.play_listbox.curselection()
-        self.playing_index = selected[0] - 1
-        for num in selected:
-            if num != self.playing_index:
-                self.playing_index = selected[0] - 1
-                break
-        self.play_listbox.selection_clear(0, END)
-        self.play_listbox.selection_set(self.playing_index + 1, self.playing_index + 1)
-        self.window.after(25, self.play_sound)
+        if self.list_size > 0:
+            selected = self.play_listbox.curselection()
+            self.playing_index = selected[0] - 1
+            for num in selected:
+                if num != self.playing_index:
+                    self.playing_index = selected[0] - 1
+                    break
+            self.play_listbox.selection_clear(0, END)
+            self.play_listbox.selection_set(self.playing_index + 1, self.playing_index + 1)
+            self.window.after(25, self.play_sound)
 
     def init_basic_value(self):
         self.list_size = 0
         self.is_playing = False
         self.playing_index = -1
-        self.support_extension = ['txt']
         if self.text is not None:
             self.text.clear()
 
     def clear(self):
-        self.init_basic_value()
+        if self.is_playing:
+            messagebox.showwarning('경고', '읽기 실행 중 텍스트 란을 비울 수 없습니다.')
+        else:
+            self.init_basic_value()
+            self.play_listbox.delete(0, END)
+            self.window.update()
 
     def quit(self):
         self.is_playing = False
@@ -178,8 +185,8 @@ class TextPlayer:
                 if self.text[self.playing_index] != '':
                     do_tts.speak(self.text[self.playing_index], slow=self.slow.get())
                     self.play_listbox.selection_clear(0, END)
-                    self.play_listbox.selection_set(self.playing_index, self.playing_index)
                     self.play_listbox.see(self.playing_index + 4)
+                    self.play_listbox.selection_set(self.playing_index, self.playing_index)
         self.window.after(25, self.play_sound)
 
     def get_text(self):
